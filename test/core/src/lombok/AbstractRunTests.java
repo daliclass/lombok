@@ -119,7 +119,7 @@ public abstract class AbstractRunTests {
 	}
 	
 	private static File findPlaceToDumpActualFiles() {
-		String location = System.getProperty("lombok.tests.dump_actual_files");
+		String location = System.getProperty("/Users/markhaynes/os/lombok/actuals");
 		if (location != null) {
 			File dumpActualFilesHere = new File(location);
 			dumpActualFilesHere.mkdirs();
@@ -197,7 +197,10 @@ public abstract class AbstractRunTests {
 		}
 	}
 	
-	@SuppressWarnings("null") /* eclipse bug workaround; it falsely thinks stuffAc will always be null. */
+	@SuppressWarnings("null") /*
+								 * eclipse bug workaround; it falsely thinks
+								 * stuffAc will always be null.
+								 */
 	private static void compareMessages(String name, LombokImmutableList<CompilerMessageMatcher> expected, LinkedHashSet<CompilerMessage> actual) {
 		Iterator<CompilerMessageMatcher> expectedIterator = expected.iterator();
 		Iterator<CompilerMessage> actualIterator = actual.iterator();
@@ -232,11 +235,13 @@ public abstract class AbstractRunTests {
 		
 		for (int i = 0; i < expectedLines.length; i++) {
 			if (expectedLines[i].isEmpty() || expectedLines[i].startsWith("//")) expectedLines[i] = "";
-			else break;
+			else
+				break;
 		}
 		for (int i = 0; i < actualLines.length; i++) {
 			if (actualLines[i].isEmpty() || actualLines[i].startsWith("//")) actualLines[i] = "";
-			else break;
+			else
+				break;
 		}
 		expectedLines = removeBlanks(expectedLines);
 		actualLines = removeBlanks(actualLines);

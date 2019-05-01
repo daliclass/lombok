@@ -35,6 +35,7 @@ import java.util.Set;
 
 import lombok.core.AST.Kind;
 import lombok.eclipse.EclipseAST;
+import lombok.eclipse.EclipseASTVisitor;
 import lombok.eclipse.EclipseNode;
 import lombok.eclipse.TransformEclipseAST;
 import lombok.eclipse.handlers.SetGeneratedByVisitor;
@@ -42,6 +43,7 @@ import lombok.eclipse.handlers.SetGeneratedByVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
@@ -50,6 +52,8 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.Initializer;
+import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
@@ -77,6 +81,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.UnresolvedReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 public class PatchDelegate {
 	private static class ClassScopeEntry {
@@ -145,8 +150,150 @@ public class PatchDelegate {
 			try {
 				TypeDeclaration decl = scope.referenceContext;
 				if (decl != null) {
-					CompilationUnitDeclaration cud = scope.compilationUnitScope().referenceContext;
+					CompilationUnitDeclaration cud = scope.referenceCompilationUnit();
 					EclipseAST eclipseAst = TransformEclipseAST.getAST(cud, true);
+					eclipseAst.traverse(new EclipseASTVisitor() {
+
+						@Override public void visitCompilationUnit(EclipseNode top, CompilationUnitDeclaration unit) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void endVisitCompilationUnit(EclipseNode top, CompilationUnitDeclaration unit) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitType(EclipseNode typeNode, TypeDeclaration type) {
+							// TODO Auto-generated method stub
+							System.out.println("visitType");
+							System.out.println(typeNode.getFileName());
+							
+//							System.out.println(type);
+						}
+
+						@Override public void visitAnnotationOnType(TypeDeclaration type, EclipseNode annotationNode, Annotation annotation) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void endVisitType(EclipseNode typeNode, TypeDeclaration type) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitField(EclipseNode fieldNode, FieldDeclaration field) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitAnnotationOnField(FieldDeclaration field, EclipseNode annotationNode, Annotation annotation) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void endVisitField(EclipseNode fieldNode, FieldDeclaration field) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitInitializer(EclipseNode initializerNode, Initializer initializer) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void endVisitInitializer(EclipseNode initializerNode, Initializer initializer) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitMethod(EclipseNode methodNode, AbstractMethodDeclaration method) {
+							System.out.println("visitMethod");
+							System.out.println(methodNode.getKind());
+							if (methodNode.getKind() == Kind.METHOD) {
+								try {
+									MethodDeclaration methodDecl = (MethodDeclaration) methodNode.get();
+									System.out.println("name" + methodDecl.selector + " arguments " + methodDecl.arguments);
+
+								} catch(Exception e) {
+									
+								} finally {
+									
+								}
+							}
+						}
+
+						@Override public void visitAnnotationOnMethod(AbstractMethodDeclaration method, EclipseNode annotationNode, Annotation annotation) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void endVisitMethod(EclipseNode methodNode, AbstractMethodDeclaration method) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitMethodArgument(EclipseNode argNode, Argument arg, AbstractMethodDeclaration method) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitAnnotationOnMethodArgument(Argument arg, AbstractMethodDeclaration method, EclipseNode annotationNode, Annotation annotation) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void endVisitMethodArgument(EclipseNode argNode, Argument arg, AbstractMethodDeclaration method) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitLocal(EclipseNode localNode, LocalDeclaration local) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitAnnotationOnLocal(LocalDeclaration local, EclipseNode annotationNode, Annotation annotation) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void endVisitLocal(EclipseNode localNode, LocalDeclaration local) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitTypeUse(EclipseNode typeUseNode, TypeReference typeUse) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitAnnotationOnTypeUse(TypeReference typeUse, EclipseNode annotationNode, Annotation annotation) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void endVisitTypeUse(EclipseNode typeUseNode, TypeReference typeUse) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void visitStatement(EclipseNode statementNode, Statement statement) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public void endVisitStatement(EclipseNode statementNode, Statement statement) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override public boolean isDeferUntilPostDiet() {
+							// TODO Auto-generated method stub
+							return false;
+						}
+						
+					});
 					List<BindingTuple> methodsToDelegate = new ArrayList<BindingTuple>();
 					fillMethodBindingsForFields(cud, scope, methodsToDelegate);
 					if (entry.corruptedPath != null) {
@@ -171,8 +318,9 @@ public class PatchDelegate {
 	}
 	
 	/**
-	 * Returns a string containing the signature of a method that appears (erased) at least twice in the list.
-	 * If no duplicates are present, {@code null} is returned.
+	 * Returns a string containing the signature of a method that appears
+	 * (erased) at least twice in the list. If no duplicates are present,
+	 * {@code null} is returned.
 	 */
 	private static String containsDuplicates(List<BindingTuple> tuples) {
 		Set<String> sigs = new HashSet<String>();
@@ -189,8 +337,43 @@ public class PatchDelegate {
 	
 	private static void fillMethodBindingsForFields(CompilationUnitDeclaration cud, ClassScope scope, List<BindingTuple> methodsToDelegate) {
 		TypeDeclaration decl = scope.referenceContext;
+//		System.out.println(scope.referenceContext.methods);
+//		System.out.println(scope.referenceContext.methods);
+//		System.out.println(scope.parent.methodScope());
+//		System.out.println(scope.parent.getClass());
+//		System.out.println(scope.parent.classScope());
 		if (decl == null) return;
-		
+		for (AbstractMethodDeclaration method : decl.methods) {
+			// TODO pass in method signiture to methodsToExclude
+//			System.out.println("3");
+			
+			if (method instanceof MethodDeclaration) {
+				MethodDeclaration methodDeclaration = (MethodDeclaration) method;
+//				System.out.println("LOL should be something below");
+				if (methodDeclaration.binding != null) {
+//					System.out.println("SIG");
+//					System.out.println(printSig(methodDeclaration.binding));
+				} else {
+//					char[] name = methodDeclaration.selector;
+//					TypeBinding[] args = methodDeclaration.arguments == null ? new TypeBinding[0] : new TypeBinding[methodDeclaration.arguments.length];
+//					System.out.println(name);
+//					System.out.println(args[0]);
+//					System.out.println(methodDeclaration.returnType);
+//					System.out.println(methodDeclaration.arguments[0]);
+//					System.out.println(methodDeclaration.selector);
+//					System.out.println(methodDeclaration.getClass());
+//					System.out.println(methodDeclaration.typeParameters());
+//					System.out.println(methodDeclaration.arguments);
+//					System.out.println(methodDeclaration.scope);
+//					System.out.println(methodDeclaration.print(0, new StringBuffer("")).toString());
+//					System.out.println(methodDeclaration.printBody(0, new StringBuffer("")).toString());
+//					System.out.println(methodDeclaration.printReturnType(0, new StringBuffer("")).toString());
+//					System.out.println(methodDeclaration.printReturnType(0, new StringBuffer("")).toString());
+//					System.out.println("******");
+				}
+//				System.out.println(printSig(methodDeclaration.binding));
+			}
+		}
 		if (decl.fields != null) for (FieldDeclaration field : decl.fields) {
 			if (field.annotations == null) continue;
 			for (Annotation ann : field.annotations) {
@@ -208,14 +391,16 @@ public class PatchDelegate {
 				
 				List<BindingTuple> methodsToExclude = new ArrayList<BindingTuple>();
 				List<BindingTuple> methodsToDelegateForThisAnn = new ArrayList<BindingTuple>();
-				
+				Set<String> banList = new HashSet<String>();
+				banList.add("remove(java.lang.Object)");
 				try {
 					for (ClassLiteralAccess cla : excludedRawTypes) {
-						addAllMethodBindings(methodsToExclude, cla.type.resolveType(decl.initializerScope), new HashSet<String>(), field.name, ann);
+						addAllMethodBindings(methodsToExclude, cla.type.resolveType(decl.initializerScope), banList, field.name, ann);
 					}
 					
-					Set<String> banList = new HashSet<String>();
-					for (BindingTuple excluded : methodsToExclude) banList.add(printSig(excluded.parameterized));
+					for (BindingTuple excluded : methodsToExclude) {
+						banList.add(printSig(excluded.parameterized));
+					}
 					
 					if (rawTypes.isEmpty()) {
 						addAllMethodBindings(methodsToDelegateForThisAnn, field.type.resolveType(decl.initializerScope), banList, field.name, ann);
@@ -230,8 +415,9 @@ public class PatchDelegate {
 					break;
 				}
 				
-				// Not doing this right now because of problems - see commented-out-method for info.
-				// removeExistingMethods(methodsToDelegate, decl, scope);
+				// Not doing this right now because of problems - see
+				// commented-out-method for info.
+//				removeExistingMethods(methodsToDelegate, decl, scope);
 				
 				String dupe = containsDuplicates(methodsToDelegateForThisAnn);
 				if (dupe != null) {
@@ -252,6 +438,15 @@ public class PatchDelegate {
 		if (decl == null) return;
 		
 		if (decl.methods != null) for (AbstractMethodDeclaration methodDecl : decl.methods) {
+			// ALREADY HAS METHODS FOR DELEGATES :( Ban still works but hard to
+			// see what is a delegate and what is real
+			if (methodDecl.typeParameters() != null) {
+				for (TypeParameter typeParam : methodDecl.typeParameters()) {
+//					System.out.println(typeParam.name);
+				}
+			}
+//			System.out.println(methodDecl.typeParameters());
+			
 			if (methodDecl.annotations == null) continue;
 			for (Annotation ann : methodDecl.annotations) {
 				if (!isDelegate(ann, decl)) continue;
@@ -285,7 +480,8 @@ public class PatchDelegate {
 					}
 					
 					Set<String> banList = new HashSet<String>();
-					for (BindingTuple excluded : methodsToExclude) banList.add(printSig(excluded.parameterized));
+					for (BindingTuple excluded : methodsToExclude)
+						banList.add(printSig(excluded.parameterized));
 					
 					if (rawTypes.isEmpty()) {
 						if (method.returnType == null) continue;
@@ -301,7 +497,8 @@ public class PatchDelegate {
 					break;
 				}
 				
-				// Not doing this right now because of problems - see commented-out-method for info.
+				// Not doing this right now because of problems - see
+				// commented-out-method for info.
 				// removeExistingMethods(methodsToDelegate, decl, scope);
 				
 				String dupe = containsDuplicates(methodsToDelegateForThisAnn);
@@ -329,7 +526,7 @@ public class PatchDelegate {
 		for (MemberValuePair pair : ann.memberValuePairs()) {
 			if (charArrayEquals(name, pair.name)) {
 				if (pair.value instanceof ArrayInitializer) {
-					for (Expression expr : ((ArrayInitializer)pair.value).expressions) {
+					for (Expression expr : ((ArrayInitializer) pair.value).expressions) {
 						if (expr instanceof ClassLiteralAccess) rawTypes.add((ClassLiteralAccess) expr);
 					}
 				}
@@ -344,10 +541,12 @@ public class PatchDelegate {
 	/*
 	 * We may someday finish this method. Steps to be completed:
 	 * 
-	 * (A) Turn any Parameterized anythings into non-parameterized versions. Resolving parameterized stuff will definitely not work safely.
-	 * (B) scope.problemReporter() will need to return a noop reporter as various errors are marked off.
-	 * (C) Find a way to do _something_ for references to typevars (i.e. 'T') which are declared on the method itself.
-	 * (D) getTypeBinding isn't public, so call it via reflection.
+	 * (A) Turn any Parameterized anythings into non-parameterized versions.
+	 * Resolving parameterized stuff will definitely not work safely. (B)
+	 * scope.problemReporter() will need to return a noop reporter as various
+	 * errors are marked off. (C) Find a way to do _something_ for references to
+	 * typevars (i.e. 'T') which are declared on the method itself. (D)
+	 * getTypeBinding isn't public, so call it via reflection.
 	 */
 //	private static TypeBinding safeResolveAndErase(TypeReference ref, Scope scope) {
 //		if (ref.resolvedType != null) {
@@ -360,11 +559,12 @@ public class PatchDelegate {
 //		} catch (AbortCompilation e) {
 //			return null;
 //		}
-//		return bind.erasure();
+//		bind.erasure();
 //	}
 	
 	/*
-	 * Not using this because calling clone.resolveType() taints a bunch of caches and reports erroneous errors.
+	 * Not using this because calling clone.resolveType() taints a bunch of
+	 * caches and reports erroneous errors.
 	 */
 //	private static void removeExistingMethods(List<BindingTuple> list, TypeDeclaration decl, ClassScope scope) {
 //		for (AbstractMethodDeclaration methodDecl : decl.methods) {
@@ -414,11 +614,14 @@ public class PatchDelegate {
 	private static void generateDelegateMethods(EclipseNode typeNode, List<BindingTuple> methods, DelegateReceiver delegateReceiver) {
 		CompilationUnitDeclaration top = (CompilationUnitDeclaration) typeNode.top().get();
 		for (BindingTuple pair : methods) {
+			
+//			System.out.println("1 ##########");
+//			System.out.println(pair.toString());
 			EclipseNode annNode = typeNode.getAst().get(pair.responsible);
 			MethodDeclaration method = createDelegateMethod(pair.fieldName, typeNode, pair, top.compilationResult, annNode, delegateReceiver);
-			if (method != null) { 
+			if (method != null) {
 				SetGeneratedByVisitor visitor = new SetGeneratedByVisitor(annNode.get());
-				method.traverse(visitor, ((TypeDeclaration)typeNode.get()).scope);
+				method.traverse(visitor, ((TypeDeclaration) typeNode.get()).scope);
 				injectMethod(typeNode, method);
 			}
 		}
@@ -432,7 +635,7 @@ public class PatchDelegate {
 		EclipseNode enclosingType = typeNode;
 		while (enclosingType != null) {
 			if (enclosingType.getKind() == Kind.TYPE) {
-				TypeParameter[] typeParameters = ((TypeDeclaration)enclosingType.get()).typeParameters;
+				TypeParameter[] typeParameters = ((TypeDeclaration) enclosingType.get()).typeParameters;
 				if (typeParameters != null) {
 					for (TypeParameter param : typeParameters) {
 						if (param.name != null) usedInOurType.add(new String(param.name));
@@ -451,8 +654,10 @@ public class PatchDelegate {
 		usedInMethodSig.retainAll(usedInOurType);
 		if (usedInMethodSig.isEmpty()) return;
 		
-		// We might be delegating a List<T>, and we are making method <T> toArray(). A conflict is possible.
-		// But only if the toArray method also uses type vars from its class, otherwise we're only shadowing,
+		// We might be delegating a List<T>, and we are making method <T>
+		// toArray(). A conflict is possible.
+		// But only if the toArray method also uses type vars from its class,
+		// otherwise we're only shadowing,
 		// which is okay as we'll add a @SuppressWarnings.
 		
 		TypeVarFinder finder = new TypeVarFinder();
@@ -461,7 +666,8 @@ public class PatchDelegate {
 		Set<String> names = new HashSet<String>(finder.getTypeVariables());
 		names.removeAll(usedInMethodSig);
 		if (!names.isEmpty()) {
-			// We have a confirmed conflict. We could dig deeper as this may still be a false alarm, but its already an exceedingly rare case.
+			// We have a confirmed conflict. We could dig deeper as this may
+			// still be a false alarm, but its already an exceedingly rare case.
 			CantMakeDelegates cmd = new CantMakeDelegates();
 			cmd.conflicted = usedInMethodSig;
 			throw cmd;
@@ -551,9 +757,10 @@ public class PatchDelegate {
 	}
 	
 	private static MethodDeclaration createDelegateMethod(char[] name, EclipseNode typeNode, BindingTuple pair, CompilationResult compilationResult, EclipseNode annNode, DelegateReceiver delegateReceiver) {
-		/* public <T, U, ...> ReturnType methodName(ParamType1 name1, ParamType2 name2, ...) throws T1, T2, ... {
-		 *      (return) delegate.<T, U>methodName(name1, name2);
-		 *  }
+		/*
+		 * public <T, U, ...> ReturnType methodName(ParamType1 name1, ParamType2
+		 * name2, ...) throws T1, T2, ... { (return) delegate.<T,
+		 * U>methodName(name1, name2); }
 		 */
 		
 		boolean isVarargs = (pair.base.modifiers & ClassFileConstants.AccVarargs) != 0;
@@ -572,7 +779,8 @@ public class PatchDelegate {
 		MethodBinding binding = pair.parameterized;
 		MethodDeclaration method = new MethodDeclaration(compilationResult);
 		setGeneratedBy(method, source);
-		method.sourceStart = pS; method.sourceEnd = pE;
+		method.sourceStart = pS;
+		method.sourceEnd = pE;
 		method.modifiers = ClassFileConstants.AccPublic;
 		
 		method.returnType = makeType(binding.returnType, source, false);
@@ -588,7 +796,8 @@ public class PatchDelegate {
 		}
 		
 		MessageSend call = new MessageSend();
-		call.sourceStart = pS; call.sourceEnd = pE;
+		call.sourceStart = pS;
+		call.sourceEnd = pE;
 		call.nameSourcePosition = pos(source);
 		setGeneratedBy(call, source);
 		call.receiver = delegateReceiver.get(source, name);
@@ -599,7 +808,8 @@ public class PatchDelegate {
 			call.typeArguments = new TypeReference[binding.typeVariables.length];
 			for (int i = 0; i < method.typeParameters.length; i++) {
 				method.typeParameters[i] = new TypeParameter();
-				method.typeParameters[i].sourceStart = pS; method.typeParameters[i].sourceEnd = pE;
+				method.typeParameters[i].sourceStart = pS;
+				method.typeParameters[i].sourceEnd = pE;
 				setGeneratedBy(method.typeParameters[i], source);
 				method.typeParameters[i].name = binding.typeVariables[i].sourceName;
 				call.typeArguments[i] = new SingleTypeReference(binding.typeVariables[i].sourceName, pos(source));
@@ -611,7 +821,8 @@ public class PatchDelegate {
 					int offset = super1 == null ? 0 : 1;
 					method.typeParameters[i].bounds = new TypeReference[super2.length + offset - 1];
 					if (super1 != null) method.typeParameters[i].type = makeType(super1, source, false);
-					else method.typeParameters[i].type = makeType(super2[0], source, false);
+					else
+						method.typeParameters[i].type = makeType(super2[0], source, false);
 					int ctr = 0;
 					for (int j = (super1 == null) ? 1 : 0; j < super2.length; j++) {
 						method.typeParameters[i].bounds[ctr] = makeType(super2[j], source, false);
@@ -622,7 +833,7 @@ public class PatchDelegate {
 		}
 		
 		if (isDeprecated) {
-			method.annotations = new Annotation[] { generateDeprecatedAnnotation(source) };
+			method.annotations = new Annotation[] {generateDeprecatedAnnotation(source)};
 		}
 		
 		method.bits |= ECLIPSE_DO_NOT_TOUCH_FLAG;
@@ -642,10 +853,7 @@ public class PatchDelegate {
 				else {
 					argName = sourceElem.arguments[i].name;
 				}
-				method.arguments[i] = new Argument(
-						argName, pos(source),
-						makeType(binding.parameters[i], source, false),
-						ClassFileConstants.AccFinal);
+				method.arguments[i] = new Argument(argName, pos(source), makeType(binding.parameters[i], source, false), ClassFileConstants.AccFinal);
 				setGeneratedBy(method.arguments[i], source);
 				call.arguments[i] = new SingleNameReference(argName, pos(source));
 				setGeneratedBy(call.arguments[i], source);
@@ -656,7 +864,7 @@ public class PatchDelegate {
 		}
 		
 		Statement body;
-		if (method.returnType instanceof SingleTypeReference && ((SingleTypeReference)method.returnType).token == TypeConstants.VOID) {
+		if (method.returnType instanceof SingleTypeReference && ((SingleTypeReference) method.returnType).token == TypeConstants.VOID) {
 			body = call;
 		} else {
 			body = new ReturnStatement(call, source.sourceStart, source.sourceEnd);
@@ -676,7 +884,8 @@ public class PatchDelegate {
 				m = ClassScope.class.getDeclaredMethod("buildFieldsAndMethods");
 				m.setAccessible(true);
 			} catch (Throwable t) {
-				// That's problematic, but as long as no local classes are used we don't actually need it.
+				// That's problematic, but as long as no local classes are used
+				// we don't actually need it.
 				// Better fail on local classes than crash altogether.
 			}
 			
@@ -714,7 +923,7 @@ public class PatchDelegate {
 		}
 		
 		if (inner instanceof SourceTypeBinding) {
-			ClassScope cs = ((SourceTypeBinding)inner).scope;
+			ClassScope cs = ((SourceTypeBinding) inner).scope;
 			if (cs != null) {
 				try {
 					Reflection.classScopeBuildFieldsAndMethodsMethod.invoke(cs);
@@ -737,36 +946,58 @@ public class PatchDelegate {
 		MethodBinding[] parameterizedSigs = availableMethods;
 		MethodBinding[] baseSigs = parameterizedSigs;
 		if (binding instanceof ParameterizedTypeBinding) {
-			baseSigs = ((ParameterizedTypeBinding)binding).genericType().availableMethods();
+			baseSigs = ((ParameterizedTypeBinding) binding).genericType().availableMethods();
+			for (MethodBinding baseSig : baseSigs) {
+//				System.out.println(baseSig); THIS IS PROBS AWESOME
+			}
 			if (baseSigs.length != parameterizedSigs.length) {
-				// The last known state of eclipse source says this can't happen, so we rely on it,
-				// but if this invariant is broken, better to go with 'arg0' naming instead of crashing.
+				// The last known state of eclipse source says this can't
+				// happen, so we rely on it,
+				// but if this invariant is broken, better to go with 'arg0'
+				// naming instead of crashing.
 				baseSigs = parameterizedSigs;
 			}
 		}
+		
+//		System.out.println("BASE SIGS");
+//		for (MethodBinding baseSig : baseSigs) {
+//			System.out.println(baseSig);
+//		}
+//		
+//		System.out.println("Parameterised SIGS");
+//		for (MethodBinding paramSig : parameterizedSigs) {
+//			System.out.println(paramSig);
+//		}
+		
 		for (int i = 0; i < parameterizedSigs.length; i++) {
 			MethodBinding mb = parameterizedSigs[i];
 			String sig = printSig(mb);
+			
 			if (mb.isStatic()) continue;
 			if (mb.isBridge()) continue;
 			if (mb.isConstructor()) continue;
 			if (mb.isDefaultAbstract()) continue;
 			if (!mb.isPublic()) continue;
 			if (mb.isSynthetic()) continue;
-			if (!banList.add(sig)) continue; // If add returns false, it was already in there.
+			if (!banList.add(sig)) continue; // If add returns false, it was
+												// already in there.
+//			System.out.println("2 ##########");
+//			System.out.println(sig);
 			BindingTuple pair = new BindingTuple(mb, baseSigs[i], fieldName, responsible);
 			list.add(pair);
 		}
 		addAllMethodBindings0(list, rb.superclass(), banList, fieldName, responsible);
 		ReferenceBinding[] interfaces = rb.superInterfaces();
 		if (interfaces != null) {
-			for (ReferenceBinding iface : interfaces) addAllMethodBindings0(list, iface, banList, fieldName, responsible);
+			for (ReferenceBinding iface : interfaces)
+				addAllMethodBindings0(list, iface, banList, fieldName, responsible);
 		}
 	}
 	
 	private static final char[] STRING_LOMBOK = new char[] {'l', 'o', 'm', 'b', 'o', 'k'};
 	private static final char[] STRING_EXPERIMENTAL = new char[] {'e', 'x', 'p', 'e', 'r', 'i', 'm', 'e', 'n', 't', 'a', 'l'};
 	private static final char[] STRING_DELEGATE = new char[] {'D', 'e', 'l', 'e', 'g', 'a', 't', 'e'};
+	
 	private static void failIfContainsAnnotation(TypeBinding parent, Binding[] bindings) throws DelegateRecursion {
 		if (bindings == null) return;
 		
@@ -774,13 +1005,16 @@ public class PatchDelegate {
 			AnnotationBinding[] anns = null;
 			if (b instanceof MethodBinding) anns = ((MethodBinding) b).getAnnotations();
 			if (b instanceof FieldBinding) anns = ((FieldBinding) b).getAnnotations();
-			// anns = b.getAnnotations() would make a heck of a lot more sense, but that is a late addition to ecj, so would cause NoSuchMethodErrors! Don't use that!
+			// anns = b.getAnnotations() would make a heck of a lot more sense,
+			// but that is a late addition to ecj, so would cause
+			// NoSuchMethodErrors! Don't use that!
 			if (anns == null) continue;
 			for (AnnotationBinding ann : anns) {
 				char[][] name = null;
 				try {
 					name = ann.getAnnotationType().compoundName;
-				} catch (Exception ignore) {}
+				} catch (Exception ignore) {
+				}
 				
 				if (name == null || name.length < 2 || name.length > 3) continue;
 				if (!Arrays.equals(STRING_LOMBOK, name[0])) continue;
@@ -809,19 +1043,28 @@ public class PatchDelegate {
 		}
 	}
 	
-	private static final List<String> METHODS_IN_OBJECT = Collections.unmodifiableList(Arrays.asList(
-			"hashCode()",
-			"canEqual(java.lang.Object)",  //Not in j.l.Object, but it goes with hashCode and equals so if we ignore those two, we should ignore this one.
-			"equals(java.lang.Object)",
-			"wait()",
-			"wait(long)",
-			"wait(long, int)",
-			"notify()",
-			"notifyAll()",
-			"toString()",
-			"getClass()",
-			"clone()",
-			"finalize()"));
+	private static final List<String> METHODS_IN_OBJECT = Collections.unmodifiableList(Arrays.asList("hashCode()", "canEqual(java.lang.Object)", // Not
+																																					// in
+																																					// j.l.Object,
+																																					// but
+																																					// it
+																																					// goes
+																																					// with
+																																					// hashCode
+																																					// and
+																																					// equals
+																																					// so
+																																					// if
+																																					// we
+																																					// ignore
+																																					// those
+																																					// two,
+																																					// we
+																																					// should
+																																					// ignore
+																																					// this
+																																					// one.
+		"equals(java.lang.Object)", "wait()", "wait(long)", "wait(long, int)", "notify()", "notifyAll()", "toString()", "getClass()", "clone()", "finalize()"));
 	
 	private static String printSig(MethodBinding binding) {
 		StringBuilder signature = new StringBuilder();
@@ -842,7 +1085,7 @@ public class PatchDelegate {
 	private static String typeBindingToSignature(TypeBinding binding) {
 		binding = binding.erasure();
 		if (binding != null && binding.isBaseType()) {
-			return new String (binding.sourceName());
+			return new String(binding.sourceName());
 		} else if (binding instanceof ReferenceBinding) {
 			String pkg = binding.qualifiedPackageName() == null ? "" : new String(binding.qualifiedPackageName());
 			String qsn = binding.qualifiedSourceName() == null ? "" : new String(binding.qualifiedSourceName());
@@ -850,7 +1093,8 @@ public class PatchDelegate {
 		} else if (binding instanceof ArrayBinding) {
 			StringBuilder out = new StringBuilder();
 			out.append(typeBindingToSignature(binding.leafComponentType()));
-			for (int i = 0; i < binding.dimensions(); i++) out.append("[]");
+			for (int i = 0; i < binding.dimensions(); i++)
+				out.append("[]");
 			return out.toString();
 		}
 		
@@ -862,7 +1106,8 @@ public class PatchDelegate {
 		if (c == null) return false;
 		
 		if (s.length() != c.length) return false;
-		for (int i = 0; i < s.length(); i++) if (s.charAt(i) != c[i]) return false;
+		for (int i = 0; i < s.length(); i++)
+			if (s.charAt(i) != c[i]) return false;
 		return true;
 	}
 	
@@ -870,7 +1115,8 @@ public class PatchDelegate {
 		METHOD {
 			public Expression get(final ASTNode source, char[] name) {
 				MessageSend call = new MessageSend();
-				call.sourceStart = source.sourceStart; call.sourceEnd = source.sourceEnd;
+				call.sourceStart = source.sourceStart;
+				call.sourceEnd = source.sourceEnd;
 				call.nameSourcePosition = pos(source);
 				setGeneratedBy(call, source);
 				call.selector = name;

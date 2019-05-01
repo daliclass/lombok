@@ -48,6 +48,7 @@ import org.mangosdk.spi.ProviderFor;
 import com.sun.tools.javac.code.Attribute.Compound;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ClassType;
@@ -106,7 +107,6 @@ public class HandleDelegate extends JavacAnnotationHandler<Delegate> {
 	
 	@Override public void handle(AnnotationValues<Delegate> annotation, JCAnnotation ast, JavacNode annotationNode) {
 		handleExperimentalFlagUsage(annotationNode, ConfigurationKeys.DELEGATE_FLAG_USAGE, "@Delegate");
-		
 		@SuppressWarnings("deprecation") Class<? extends Annotation> oldDelegate = lombok.Delegate.class;
 		deleteAnnotationIfNeccessary(annotationNode, Delegate.class, oldDelegate);
 		
@@ -142,7 +142,6 @@ public class HandleDelegate extends JavacAnnotationHandler<Delegate> {
 			// As the annotation is legal on fields and methods only, javac itself will take care of printing an error message for this.
 			return;
 		}
-		
 		List<Object> delegateTypes = annotation.getActualExpressions("types");
 		List<Object> excludeTypes = annotation.getActualExpressions("excludes");
 		List<Type> toDelegate = new ArrayList<Type>();
@@ -174,14 +173,17 @@ public class HandleDelegate extends JavacAnnotationHandler<Delegate> {
 		List<MethodSig> signaturesToExclude = new ArrayList<MethodSig>();
 		Set<String> banList = new HashSet<String>();
 		banList.addAll(METHODS_IN_OBJECT);
-		/* To exclude all methods in the class itself, try this:
-		for (Symbol member : ((JCClassDecl)typeNode.get()).sym.getEnclosedElements()) {
-			if (member instanceof MethodSymbol) {
-				MethodSymbol method = (MethodSymbol) member;
-				banList.add(printSig((ExecutableType) method.asType(), method.name, annotationNode.getTypesUtil()));
+		banList.addAll(getParentClassMethods(annotationNode));
+		
+		JCClassDecl classDeclaration = ((JCClassDecl)annotationNode.up().up().get());
+		for (Symbol symbol : classDeclaration.sym.getEnclosedElements()) {
+			if (symbol instanceof MethodSymbol) {
+				MethodSymbol method = (MethodSymbol) symbol;
+				if (!method.isConstructor()) {
+					banList.add(printSig((ExecutableType) method.asType(), method.name, annotationNode.getTypesUtil()));
+				}
 			}
 		}
-		 */
 		
 		try {
 			for (Type t : toExclude) {
@@ -209,10 +211,26 @@ public class HandleDelegate extends JavacAnnotationHandler<Delegate> {
 				}
 			}
 			
-			for (MethodSig sig : signaturesToDelegate) generateAndAdd(sig, annotationNode, delegateName, delegateReceiver);
+			for (MethodSig sig : signaturesToDelegate) {
+				generateAndAdd(sig, annotationNode, delegateName, delegateReceiver);
+			}
 		} catch (DelegateRecursion e) {
 			annotationNode.addError(String.format(RECURSION_NOT_ALLOWED, e.member, e.type));
 		}
+	}
+	
+	private List<String> getParentClassMethods(JavacNode annotationNode) {
+		List<String> classMethodSignitures = new ArrayList<String>();
+		JCClassDecl classDeclaration = ((JCClassDecl)annotationNode.up().up().get());
+		for (Symbol symbol : classDeclaration.sym.getEnclosedElements()) {
+			if (symbol instanceof MethodSymbol) {
+				MethodSymbol method = (MethodSymbol) symbol;
+				if (!method.isConstructor()) {
+					classMethodSignitures.add(printSig((ExecutableType) method.asType(), method.name, annotationNode.getTypesUtil()));
+				}
+			}
+		}
+		return classMethodSignitures;
 	}
 	
 	public void generateAndAdd(MethodSig sig, JavacNode annotation, Name delegateName, DelegateReceiver delegateReceiver) {
